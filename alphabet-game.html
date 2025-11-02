@@ -139,6 +139,34 @@
             min-height: 400px;
         }
         
+        /* Стили для полноэкранного режима */
+        .game-display:fullscreen {
+            background: #f3f4f6;
+            border-radius: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .game-display:-webkit-full-screen {
+            background: #f3f4f6;
+            border-radius: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .game-display:-moz-full-screen {
+            background: #f3f4f6;
+            border-radius: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
         .game-display.random-position {
             padding: 20px;
             min-height: 500px;
@@ -341,6 +369,7 @@
                     <button class="btn-icon" onclick="toggleInfo()">ℹ️</button>
                     <button class="btn-icon" onclick="toggleStats()">📊</button>
                     <button class="btn-icon" onclick="toggleSettings()">⚙️</button>
+                    <button class="btn-icon" onclick="toggleFullscreen()" id="fullscreenBtn" title="Полноэкранный режим (F)">⛶</button>
                 </div>
             </div>
         </div>
@@ -454,6 +483,15 @@
                         <input type="checkbox" id="showArrowsCheckbox" checked onchange="toggleArrows()" 
                                style="width: 20px; height: 20px; cursor: pointer;">
                         <span style="color: #4b5563;">Показывать стрелочки (← →) возле рук</span>
+                    </label>
+                </div>
+
+                <!-- Показывать подсказки -->
+                <div style="margin-bottom: 15px;">
+                    <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                        <input type="checkbox" id="showHintsCheckbox" checked onchange="toggleHints()" 
+                               style="width: 20px; height: 20px; cursor: pointer;">
+                        <span style="color: #4b5563;">Показывать подсказки ("Поднимите левую руку")</span>
                     </label>
                 </div>
 
@@ -578,6 +616,7 @@
         
         // Настройки
         let showArrows = true;
+        let showHints = true;
         let soundEnabled = true;
         let randomPosition = false;
         
@@ -606,9 +645,11 @@
             if (savedSettings) {
                 const settings = JSON.parse(savedSettings);
                 showArrows = settings.showArrows !== undefined ? settings.showArrows : true;
+                showHints = settings.showHints !== undefined ? settings.showHints : true;
                 soundEnabled = settings.soundEnabled !== undefined ? settings.soundEnabled : true;
                 randomPosition = settings.randomPosition !== undefined ? settings.randomPosition : false;
                 document.getElementById('showArrowsCheckbox').checked = showArrows;
+                document.getElementById('showHintsCheckbox').checked = showHints;
                 document.getElementById('soundCheckbox').checked = soundEnabled;
                 document.getElementById('randomPositionCheckbox').checked = randomPosition;
             }
@@ -623,6 +664,7 @@
         function saveSettings() {
             localStorage.setItem('alphabetGameSettings', JSON.stringify({
                 showArrows,
+                showHints,
                 soundEnabled,
                 randomPosition
             }));
@@ -645,6 +687,12 @@
         // Переключение стрелочек
         function toggleArrows() {
             showArrows = document.getElementById('showArrowsCheckbox').checked;
+            saveSettings();
+        }
+        
+        // Переключение подсказок
+        function toggleHints() {
+            showHints = document.getElementById('showHintsCheckbox').checked;
             saveSettings();
         }
         
@@ -929,11 +977,14 @@
                 containerClass += ' positioned';
             }
 
+            // Показываем подсказку только если включена настройка
+            const hintHtml = showHints ? `<div class="hint">${hintText}</div>` : '';
+
             document.getElementById('gameDisplay').innerHTML = `
                 <div class="${containerClass}" style="${positionStyle}">
                     <div class="letter-display">${letter.letter}</div>
                     <div class="hand-display ${handColor}">${handSymbol}</div>
-                    <div class="hint">${hintText}</div>
+                    ${hintHtml}
                 </div>
             `;
 
@@ -1037,6 +1088,62 @@
 
         // Инициализация при загрузке
         window.onload = init;
+
+        // ===== ПОЛНОЭКРАННЫЙ РЕЖИМ =====
+        
+        function toggleFullscreen() {
+            const gameDisplay = document.getElementById('gameDisplay');
+            
+            if (!document.fullscreenElement) {
+                // Входим в полноэкранный режим
+                if (gameDisplay.requestFullscreen) {
+                    gameDisplay.requestFullscreen();
+                } else if (gameDisplay.webkitRequestFullscreen) {
+                    gameDisplay.webkitRequestFullscreen(); // Safari
+                } else if (gameDisplay.msRequestFullscreen) {
+                    gameDisplay.msRequestFullscreen(); // IE11
+                }
+            } else {
+                // Выходим из полноэкранного режима
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen(); // Safari
+                } else if (document.msExitFullscreen) {
+                    document.msExitFullscreen(); // IE11
+                }
+            }
+        }
+
+        // Обновляем иконку кнопки при входе/выходе из полноэкранного режима
+        document.addEventListener('fullscreenchange', updateFullscreenButton);
+        document.addEventListener('webkitfullscreenchange', updateFullscreenButton); // Safari
+
+        function updateFullscreenButton() {
+            const btn = document.getElementById('fullscreenBtn');
+            if (btn) {
+                if (document.fullscreenElement || document.webkitFullscreenElement) {
+                    btn.textContent = '⛶';
+                    btn.title = 'Выйти из полноэкранного режима (Esc)';
+                } else {
+                    btn.textContent = '⛶';
+                    btn.title = 'Полноэкранный режим (F)';
+                }
+            }
+        }
+
+        // Горячие клавиши для полноэкранного режима
+        document.addEventListener('keydown', function(e) {
+            // F = Fullscreen (только когда не в поле ввода)
+            if (e.code === 'KeyF' && document.activeElement.tagName !== 'TEXTAREA' && document.activeElement.tagName !== 'INPUT') {
+                e.preventDefault();
+                toggleFullscreen();
+            }
+            // Esc выходит из fullscreen автоматически, но также можем сбросить игру
+            if (e.code === 'Escape' && !document.fullscreenElement && !document.webkitFullscreenElement) {
+                // Игра продолжается, просто вышли из fullscreen
+            }
+        });
     </script>
 </body>
 </html>
