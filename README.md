@@ -40,7 +40,7 @@
 - ✅ Адаптация под тему Telegram
 - ✅ Подтверждение при выходе во время игры
 
-**Бот:** [@newcode_nlp_bot](https://t.me/newcode_nlp_bot) *(замени на свой username)*
+**Бот:** [@newcodenlpbot](https://t.me/newcodenlpbot) 
 
 ---
 
@@ -66,26 +66,6 @@
 - "Черепахи до самого низа" — Джон Гриндер, Джуди Делозье
 - "Новый код НЛП" — Тимур Гагин
 - "Основы мастерства во всём" — материалы мастерского курса НЛП
-
----
-
-## 🚀 Установка
-
-### Веб-версия
-Просто открой HTML файлы в браузере:
-```bash
-git clone https://github.com/thepisarev/newcode.git
-cd newcode
-open alphabet-game.html
-```
-
-### Telegram Bot
-1. Создай бота через [@BotFather](https://t.me/botfather)
-2. Добавь Web Apps с URL:
-   - `https://thepisarev.github.io/newcode/alphabet-game.html`
-   - `https://thepisarev.github.io/newcode/rainbow-game.html`
-
-Подробная инструкция: [telegram-bot-setup.md](telegram-bot-setup.md)
 
 ---
 
