@@ -1,0 +1,1042 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Игра "Алфавит" - Новый код НЛП</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 30px;
+            margin-bottom: 20px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        h1 {
+            font-size: 32px;
+            color: #1a202c;
+            margin-bottom: 5px;
+        }
+
+        .subtitle {
+            color: #718096;
+            font-size: 14px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+        }
+
+        .btn-gray {
+            background: #4b5563;
+            color: white;
+        }
+
+        .btn-icon {
+            background: #e5e7eb;
+            padding: 10px;
+            border-radius: 50%;
+        }
+
+        .btn-icon:hover {
+            background: #d1d5db;
+        }
+
+        .progress-bar {
+            height: 12px;
+            background: #e5e7eb;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+            transition: width 0.3s;
+        }
+
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            color: #718096;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .game-display {
+            text-align: center;
+            padding: 60px 20px;
+            position: relative;
+            min-height: 400px;
+        }
+        
+        .game-display.random-position {
+            padding: 20px;
+            min-height: 500px;
+        }
+        
+        .letter-container {
+            transition: all 0.3s ease;
+        }
+        
+        .letter-container.positioned {
+            position: absolute;
+            transform: translate(-50%, -50%);
+        }
+
+        .letter-display {
+            font-size: 160px;
+            font-weight: bold;
+            color: #1a202c;
+            margin-bottom: 30px;
+            line-height: 1;
+        }
+
+        .hand-display {
+            font-size: 80px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .hand-left { color: #3b82f6; }
+        .hand-right { color: #10b981; }
+        .hand-both { color: #8b5cf6; }
+
+        .hint {
+            color: #718096;
+            font-size: 16px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 36px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #718096;
+            font-size: 14px;
+        }
+
+        .goal-input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 16px;
+            resize: vertical;
+            font-family: inherit;
+            margin-top: 15px;
+        }
+
+        .goal-input:focus {
+            outline: none;
+            border-color: #8b5cf6;
+        }
+
+        .info-section {
+            margin-top: 20px;
+        }
+
+        .info-section h3 {
+            color: #1a202c;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .info-section ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .info-section li {
+            padding: 10px 0;
+            color: #4b5563;
+            line-height: 1.6;
+        }
+
+        .alert {
+            background: #fef3c7;
+            border: 2px solid #fbbf24;
+            border-radius: 12px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+
+        .alert strong {
+            color: #92400e;
+        }
+
+        .current-goal {
+            background: linear-gradient(135deg, #ddd6fe 0%, #fce7f3 100%);
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 10px;
+        }
+
+        .current-goal h3 {
+            color: #1a202c;
+            margin-bottom: 10px;
+        }
+
+        .current-goal p {
+            color: #4b5563;
+            font-style: italic;
+            font-size: 16px;
+        }
+
+        .session-stats {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-top: 30px;
+            color: #718096;
+        }
+
+        .session-stat {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 18px;
+        }
+
+        .emoji {
+            font-size: 32px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .speed-controls {
+            margin-top: 20px;
+        }
+
+        .speed-slider {
+            width: 100%;
+            margin: 15px 0;
+        }
+
+        .speed-presets {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .speed-preset {
+            padding: 8px 16px;
+            background: #f3f4f6;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .speed-preset:hover {
+            background: #e5e7eb;
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 24px; }
+            .letter-display { font-size: 100px; }
+            .hand-display { font-size: 60px; }
+            .button-group { justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Заголовок -->
+        <div class="card">
+            <div class="header">
+                <div>
+                    <h1>🧠 Игра "Алфавит"</h1>
+                    <p class="subtitle">Новый код НЛП • Высокопродуктивное состояние</p>
+                </div>
+                <div class="button-group">
+                    <button class="btn-icon" onclick="toggleInfo()">ℹ️</button>
+                    <button class="btn-icon" onclick="toggleStats()">📊</button>
+                    <button class="btn-icon" onclick="toggleSettings()">⚙️</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Информация -->
+        <div id="infoSection" class="card hidden">
+            <div class="info-section">
+                <h3>ℹ️ Как играть</h3>
+                <ul>
+                    <li><strong>1. Установите таймер</strong> — выберите длительность сессии (рекомендуется 15 минут)</li>
+                    <li><strong>2. Настройте режим</strong> — включите "Буквы в разных частях экрана" для усиленного эффекта</li>
+                    <li><strong>3. Поставьте цель</strong> — сформулируйте, что вы хотите от бессознательного</li>
+                    <li><strong>4. Читайте вслух</strong> верхнюю букву (большую букву)</li>
+                    <li><strong>5. Поднимайте руки</strong> согласно нижней букве:</li>
+                    <li style="margin-left: 20px;">• <strong>Л</strong> — Левая рука</li>
+                    <li style="margin-left: 20px;">• <strong>П</strong> — Правая рука</li>
+                    <li style="margin-left: 20px;">• <strong>О</strong> — Обе руки</li>
+                    <li><strong>6. Широкие махи</strong> — от души, с энергией!</li>
+                    <li><strong>7. Скорость</strong> — регулируйте кнопками +/− прямо во время игры</li>
+                    <li><strong>8. Не останавливайтесь</strong> — играйте до конца таймера</li>
+                </ul>
+                <div class="alert">
+                    <strong>⚡ Важно:</strong> Буквы появляются в случайном порядке и будут повторяться. 
+                    Режим "в разных частях экрана" заставляет глаза активно двигаться — это усиливает EMDR-эффект и глубже очищает от эмоционального мусора.
+                    Мозг будет подкидывать отвлекающие мысли — это нормально. 
+                    Продолжайте играть, через 10-12 минут отпустит.
+                </div>
+            </div>
+        </div>
+
+        <!-- Статистика -->
+        <div id="statsSection" class="card hidden">
+            <h3>📊 Ваша статистика</h3>
+            <div class="stats-grid">
+                <div class="stat-card" style="background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);">
+                    <div class="stat-value" style="color: #2563eb;" id="totalSessions">0</div>
+                    <div class="stat-label">Всего сессий</div>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);">
+                    <div class="stat-value" style="color: #059669;" id="completedRounds">0</div>
+                    <div class="stat-label">Завершено</div>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #e9d5ff 0%, #d8b4fe 100%);">
+                    <div class="stat-value" style="color: #7c3aed;" id="totalTime">0:00</div>
+                    <div class="stat-label">Общее время</div>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #fed7aa 0%, #fdba74 100%);">
+                    <div class="stat-value" style="color: #d97706;" id="bestTime">--</div>
+                    <div class="stat-label">Лучшее время</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Настройки -->
+        <div id="settingsSection" class="card hidden">
+            <h3>⚙️ Настройки</h3>
+            
+            <!-- Таймер -->
+            <div style="margin-bottom: 30px;">
+                <label style="font-weight: 600; color: #1a202c; display: block; margin-bottom: 10px;">
+                    ⏱️ Длительность сессии (минут)
+                </label>
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <input type="range" min="1" max="30" step="1" value="15" 
+                           id="timerSlider" class="speed-slider" onchange="updateTimerSetting()">
+                    <span id="timerValue" style="font-family: monospace; min-width: 60px; font-size: 18px; font-weight: bold;">15 мин</span>
+                </div>
+                <div class="speed-presets">
+                    <button class="speed-preset" onclick="setTimer(5)">5 мин</button>
+                    <button class="speed-preset" onclick="setTimer(10)">10 мин</button>
+                    <button class="speed-preset" onclick="setTimer(15)">15 мин</button>
+                    <button class="speed-preset" onclick="setTimer(20)">20 мин</button>
+                    <button class="speed-preset" onclick="setTimer(30)">30 мин</button>
+                </div>
+            </div>
+
+            <!-- Скорость -->
+            <div style="margin-bottom: 30px;">
+                <label style="font-weight: 600; color: #1a202c;">Начальная скорость (интервал между буквами)</label>
+                <div style="display: flex; align-items: center; gap: 15px; margin-top: 10px;">
+                    <input type="range" min="500" max="3000" step="100" value="1500" 
+                           id="speedSlider" class="speed-slider" onchange="updateSpeed()">
+                    <span id="speedValue" style="font-family: monospace; min-width: 50px;">1.5с</span>
+                </div>
+                <div class="speed-presets">
+                    <button class="speed-preset" onclick="setSpeed(2000)">Медленно</button>
+                    <button class="speed-preset" onclick="setSpeed(1500)">Норма</button>
+                    <button class="speed-preset" onclick="setSpeed(1000)">Быстро</button>
+                    <button class="speed-preset" onclick="setSpeed(700)">Очень быстро</button>
+                </div>
+            </div>
+
+            <!-- Дополнительные опции -->
+            <div style="border-top: 2px solid #e5e7eb; padding-top: 20px;">
+                <label style="font-weight: 600; color: #1a202c; display: block; margin-bottom: 15px;">
+                    Дополнительные опции
+                </label>
+                
+                <!-- Случайное положение букв -->
+                <div style="margin-bottom: 15px;">
+                    <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                        <input type="checkbox" id="randomPositionCheckbox" onchange="toggleRandomPosition()" 
+                               style="width: 20px; height: 20px; cursor: pointer;">
+                        <span style="color: #4b5563;">Буквы в разных частях экрана (движения глаз)</span>
+                    </label>
+                </div>
+                
+                <!-- Показывать стрелочки -->
+                <div style="margin-bottom: 15px;">
+                    <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                        <input type="checkbox" id="showArrowsCheckbox" checked onchange="toggleArrows()" 
+                               style="width: 20px; height: 20px; cursor: pointer;">
+                        <span style="color: #4b5563;">Показывать стрелочки (← →) возле рук</span>
+                    </label>
+                </div>
+
+                <!-- Звук завершения -->
+                <div style="margin-bottom: 15px;">
+                    <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                        <input type="checkbox" id="soundCheckbox" checked onchange="toggleSound()" 
+                               style="width: 20px; height: 20px; cursor: pointer;">
+                        <span style="color: #4b5563;">Звук при завершении сессии</span>
+                    </label>
+                </div>
+
+                <p style="color: #718096; font-size: 13px; margin-top: 15px; padding: 10px; background: #f9fafb; border-radius: 8px;">
+                    💡 <strong>Совет:</strong> Случайное положение букв усиливает EMDR-эффект и глубже загружает мозг
+                </p>
+            </div>
+        </div>
+
+        <!-- Постановка цели -->
+        <div id="goalSection" class="card">
+            <h3>🎯 Поставьте цель для бессознательного</h3>
+            <p style="color: #718096; margin-top: 10px;">
+                Сформулируйте, что вы хотите получить от этой сессии. 
+                Эта цель будет работать пока вы играете.
+            </p>
+            <textarea 
+                id="goalInput" 
+                class="goal-input" 
+                rows="3" 
+                placeholder="Например: 'Найти три способа заработать деньги эту неделю' или 'Получить ясность по проекту' или 'Избавиться от тревоги'"></textarea>
+        </div>
+
+        <!-- Игровая область -->
+        <div class="card">
+            <!-- Таймер обратного отсчета -->
+            <div class="progress-info">
+                <span style="font-size: 18px; font-weight: 600;">⏱️ Осталось времени: <span id="timeRemaining" style="color: #10b981; font-size: 24px;">15:00</span></span>
+                <span>Прошло: <span id="sessionTime">0:00</span></span>
+            </div>
+            <div class="progress-bar">
+                <div id="progressBar" class="progress-fill" style="width: 100%"></div>
+            </div>
+
+            <div class="game-display" id="gameDisplay">
+                <div class="emoji">🧠</div>
+                <h2 style="color: #1a202c; margin-bottom: 10px;">Готовы войти в состояние мастерства?</h2>
+                <p style="color: #718096;">Поставьте цель выше и нажмите "Старт" ⬆️</p>
+            </div>
+
+            <!-- Управление скоростью во время игры -->
+            <div id="speedControls" class="hidden" style="margin-top: 20px; text-align: center;">
+                <div style="display: inline-flex; align-items: center; gap: 15px; background: #f3f4f6; padding: 15px 25px; border-radius: 12px;">
+                    <button onclick="decreaseSpeed()" class="btn-icon" style="font-size: 20px; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
+                        ➖
+                    </button>
+                    <div style="text-align: center; min-width: 100px;">
+                        <div style="font-size: 12px; color: #718096; margin-bottom: 3px;">Скорость</div>
+                        <div id="currentSpeedDisplay" style="font-size: 20px; font-weight: bold; color: #1a202c;">1.5с</div>
+                    </div>
+                    <button onclick="increaseSpeed()" class="btn-icon" style="font-size: 20px; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
+                        ➕
+                    </button>
+                </div>
+            </div>
+
+            <div id="sessionStats" class="session-stats hidden">
+                <div class="session-stat">
+                    <span class="emoji">🔤</span>
+                    <div>
+                        <span id="lettersCount" style="font-weight: bold; font-size: 24px;">0</span>
+                        <span>букв</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="button-group" style="justify-content: center; margin-top: 30px;">
+                <button id="startBtn" class="btn-primary" onclick="startGame()">
+                    ▶️ Старт
+                </button>
+                <button id="pauseBtn" class="btn-secondary hidden" onclick="togglePause()">
+                    ⏸️ Пауза
+                </button>
+                <button class="btn-gray" onclick="resetGame()">
+                    🔄 Сброс
+                </button>
+            </div>
+        </div>
+
+        <!-- Текущая цель -->
+        <div id="currentGoalDisplay" class="card current-goal hidden">
+            <h3>💭 Ваша цель на эту сессию:</h3>
+            <p id="currentGoalText"></p>
+            <p style="color: #718096; font-size: 14px; margin-top: 15px; font-style: normal;">
+                💡 Ваше бессознательное уже работает над этой задачей пока вы играете
+            </p>
+        </div>
+
+        <!-- Совет -->
+        <div class="card" style="text-align: center; padding: 15px;">
+            <p style="color: #718096; font-size: 14px;">
+                ⚡ <strong>Совет:</strong> Работайте на переносимой скорости — думать уже не получается, но ошибок почти нет
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Алфавит и переменные
+        const RUSSIAN_ALPHABET = 'АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ'.split('');
+        const HAND_OPTIONS = ['Л', 'П', 'О'];
+
+        let isPlaying = false;
+        let isPaused = false;
+        let speed = 1500;
+        let sessionDuration = 15; // минуты
+        let timeRemaining = 0; // секунды
+        let letterCount = 0;
+        let startTime = null;
+        let sessionTime = 0;
+        let timerInterval = null;
+        let gameInterval = null;
+        let goalSet = false;
+        
+        // Настройки
+        let showArrows = true;
+        let soundEnabled = true;
+        let randomPosition = false;
+        
+        // Предыдущая буква и рука (для предотвращения повторов)
+        let previousLetter = null;
+        let previousHand = null;
+
+        // Статистика
+        let stats = {
+            totalSessions: 0,
+            completedRounds: 0,
+            totalTime: 0,
+            bestTime: null
+        };
+
+        // Загрузка статистики из localStorage
+        function loadStats() {
+            const saved = localStorage.getItem('alphabetGameStats');
+            if (saved) {
+                stats = JSON.parse(saved);
+                updateStatsDisplay();
+            }
+            
+            // Загрузка настроек
+            const savedSettings = localStorage.getItem('alphabetGameSettings');
+            if (savedSettings) {
+                const settings = JSON.parse(savedSettings);
+                showArrows = settings.showArrows !== undefined ? settings.showArrows : true;
+                soundEnabled = settings.soundEnabled !== undefined ? settings.soundEnabled : true;
+                randomPosition = settings.randomPosition !== undefined ? settings.randomPosition : false;
+                document.getElementById('showArrowsCheckbox').checked = showArrows;
+                document.getElementById('soundCheckbox').checked = soundEnabled;
+                document.getElementById('randomPositionCheckbox').checked = randomPosition;
+            }
+        }
+
+        // Сохранение статистики
+        function saveStats() {
+            localStorage.setItem('alphabetGameStats', JSON.stringify(stats));
+        }
+        
+        // Сохранение настроек
+        function saveSettings() {
+            localStorage.setItem('alphabetGameSettings', JSON.stringify({
+                showArrows,
+                soundEnabled,
+                randomPosition
+            }));
+        }
+        
+        // Переключение случайного положения
+        function toggleRandomPosition() {
+            randomPosition = document.getElementById('randomPositionCheckbox').checked;
+            saveSettings();
+            
+            // Обновляем класс для game-display
+            const gameDisplay = document.getElementById('gameDisplay');
+            if (randomPosition) {
+                gameDisplay.classList.add('random-position');
+            } else {
+                gameDisplay.classList.remove('random-position');
+            }
+        }
+        
+        // Переключение стрелочек
+        function toggleArrows() {
+            showArrows = document.getElementById('showArrowsCheckbox').checked;
+            saveSettings();
+        }
+        
+        // Переключение звука
+        function toggleSound() {
+            soundEnabled = document.getElementById('soundCheckbox').checked;
+            saveSettings();
+        }
+        
+        // Воспроизведение звука завершения
+        function playCompletionSound() {
+            if (!soundEnabled) return;
+            
+            // Создаем простой звуковой сигнал с помощью Web Audio API
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.type = 'sine';
+            oscillator.frequency.value = 523.25; // нота C5
+            
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.5);
+            
+            // Второй звук
+            setTimeout(() => {
+                const osc2 = audioContext.createOscillator();
+                const gain2 = audioContext.createGain();
+                osc2.connect(gain2);
+                gain2.connect(audioContext.destination);
+                osc2.type = 'sine';
+                osc2.frequency.value = 659.25; // нота E5
+                gain2.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gain2.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+                osc2.start(audioContext.currentTime);
+                osc2.stop(audioContext.currentTime + 0.5);
+            }, 200);
+        }
+
+        // Получить случайную букву с случайной рукой (БЕЗ повторов подряд)
+        function getRandomLetter() {
+            let letter, hand;
+            let attempts = 0;
+            const maxAttempts = 50; // защита от бесконечного цикла
+            
+            do {
+                letter = RUSSIAN_ALPHABET[Math.floor(Math.random() * RUSSIAN_ALPHABET.length)];
+                hand = HAND_OPTIONS[Math.floor(Math.random() * HAND_OPTIONS.length)];
+                attempts++;
+                
+                // Если не получается найти уникальную комбинацию за 50 попыток, 
+                // сбрасываем previousLetter
+                if (attempts > maxAttempts) {
+                    previousLetter = null;
+                    previousHand = null;
+                }
+            } while (
+                attempts <= maxAttempts && 
+                (letter === previousLetter || hand === previousHand)
+            );
+            
+            previousLetter = letter;
+            previousHand = hand;
+            
+            return { letter, hand };
+        }
+
+        // Инициализация
+        function init() {
+            loadStats();
+            updateTimerDisplay();
+        }
+
+        // Переключение секций
+        function toggleInfo() {
+            document.getElementById('infoSection').classList.toggle('hidden');
+        }
+
+        function toggleStats() {
+            document.getElementById('statsSection').classList.toggle('hidden');
+        }
+
+        function toggleSettings() {
+            document.getElementById('settingsSection').classList.toggle('hidden');
+        }
+
+        // Настройка таймера
+        function updateTimerSetting() {
+            const slider = document.getElementById('timerSlider');
+            sessionDuration = parseInt(slider.value);
+            document.getElementById('timerValue').textContent = sessionDuration + ' мин';
+            if (!isPlaying) {
+                updateTimerDisplay();
+            }
+        }
+
+        function setTimer(minutes) {
+            sessionDuration = minutes;
+            document.getElementById('timerSlider').value = minutes;
+            updateTimerSetting();
+        }
+
+        function updateTimerDisplay() {
+            const minutes = Math.floor(timeRemaining / 60);
+            const seconds = timeRemaining % 60;
+            const display = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            document.getElementById('timeRemaining').textContent = display;
+            
+            // Обновить прогресс-бар
+            const totalSeconds = sessionDuration * 60;
+            const progress = (timeRemaining / totalSeconds) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+            
+            // Изменить цвет когда мало времени
+            const progressBar = document.getElementById('progressBar');
+            if (progress < 20) {
+                progressBar.style.background = 'linear-gradient(90deg, #ef4444 0%, #dc2626 100%)';
+            } else if (progress < 50) {
+                progressBar.style.background = 'linear-gradient(90deg, #f59e0b 0%, #d97706 100%)';
+            } else {
+                progressBar.style.background = 'linear-gradient(90deg, #10b981 0%, #059669 100%)';
+            }
+        }
+
+        // Настройка скорости
+        function updateSpeed() {
+            const slider = document.getElementById('speedSlider');
+            speed = parseInt(slider.value);
+            document.getElementById('speedValue').textContent = (speed / 1000).toFixed(1) + 'с';
+            updateCurrentSpeedDisplay();
+        }
+
+        function updateCurrentSpeedDisplay() {
+            document.getElementById('currentSpeedDisplay').textContent = (speed / 1000).toFixed(1) + 'с';
+        }
+
+        function setSpeed(value) {
+            speed = value;
+            document.getElementById('speedSlider').value = value;
+            updateSpeed();
+        }
+
+        // Изменение скорости во время игры
+        function increaseSpeed() {
+            if (speed > 500) {
+                speed = Math.max(500, speed - 100);
+                updateCurrentSpeedDisplay();
+                
+                // Перезапустить интервал с новой скоростью
+                if (isPlaying && !isPaused) {
+                    clearTimeout(gameInterval);
+                    scheduleNextLetter();
+                }
+            }
+        }
+
+        function decreaseSpeed() {
+            if (speed < 3000) {
+                speed = Math.min(3000, speed + 100);
+                updateCurrentSpeedDisplay();
+                
+                // Перезапустить интервал с новой скоростью
+                if (isPlaying && !isPaused) {
+                    clearTimeout(gameInterval);
+                    scheduleNextLetter();
+                }
+            }
+        }
+
+        // Форматирование времени
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${mins}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        // Обновление отображения статистики
+        function updateStatsDisplay() {
+            document.getElementById('totalSessions').textContent = stats.totalSessions;
+            document.getElementById('completedRounds').textContent = stats.completedRounds;
+            document.getElementById('totalTime').textContent = formatTime(stats.totalTime);
+            document.getElementById('bestTime').textContent = stats.bestTime ? formatTime(stats.bestTime) : '--';
+        }
+
+        // Старт игры
+        function startGame() {
+            const goal = document.getElementById('goalInput').value.trim();
+            if (!goal) {
+                alert('Пожалуйста, поставьте цель для вашего бессознательного!');
+                return;
+            }
+
+            goalSet = true;
+            isPlaying = true;
+            isPaused = false;
+            letterCount = 0;
+            startTime = Date.now();
+            sessionTime = 0;
+            timeRemaining = sessionDuration * 60; // конвертируем в секунды
+            previousLetter = null; // сбрасываем предыдущую букву
+            previousHand = null; // сбрасываем предыдущую руку
+            stats.totalSessions++;
+            saveStats();
+            updateStatsDisplay();
+
+            // Показать цель
+            document.getElementById('currentGoalText').textContent = `"${goal}"`;
+            document.getElementById('currentGoalDisplay').classList.remove('hidden');
+            document.getElementById('goalSection').classList.add('hidden');
+            
+            // Обновить UI
+            document.getElementById('startBtn').classList.add('hidden');
+            document.getElementById('pauseBtn').classList.remove('hidden');
+            document.getElementById('speedControls').classList.remove('hidden');
+            document.getElementById('sessionStats').classList.remove('hidden');
+            document.getElementById('lettersCount').textContent = '0';
+
+            // Запустить таймеры
+            timerInterval = setInterval(updateTimers, 1000);
+
+            // Показать первую букву
+            showRandomLetter();
+        }
+
+        // Обновление таймеров
+        function updateTimers() {
+            if (isPlaying && !isPaused) {
+                // Обновить прошедшее время
+                sessionTime = Math.floor((Date.now() - startTime) / 1000);
+                document.getElementById('sessionTime').textContent = formatTime(sessionTime);
+                
+                // Обновить оставшееся время
+                timeRemaining--;
+                updateTimerDisplay();
+                
+                // Проверить окончание времени
+                if (timeRemaining <= 0) {
+                    completeGame();
+                }
+            }
+        }
+
+        // Показать случайную букву
+        function showRandomLetter() {
+            if (!isPlaying || timeRemaining <= 0) {
+                return;
+            }
+
+            const letter = getRandomLetter();
+            const handColor = letter.hand === 'Л' ? 'hand-left' : 
+                             letter.hand === 'П' ? 'hand-right' : 'hand-both';
+            
+            // Формируем символ с учетом настройки стрелочек
+            let handSymbol;
+            if (showArrows) {
+                handSymbol = letter.hand === 'Л' ? '← Л' :
+                            letter.hand === 'П' ? 'П →' : '← О →';
+            } else {
+                handSymbol = letter.hand;
+            }
+            
+            const hintText = letter.hand === 'Л' ? '👈 Поднимите ЛЕВУЮ руку' :
+                            letter.hand === 'П' ? '👉 Поднимите ПРАВУЮ руку' : 
+                            '🙌 Поднимите ОБЕ руки';
+
+            // Генерируем случайную позицию если включена настройка
+            let positionStyle = '';
+            let containerClass = 'letter-container';
+            
+            if (randomPosition) {
+                // Случайная позиция: 15-85% по горизонтали и вертикали
+                // (оставляем отступы от краёв)
+                const randomX = 20 + Math.random() * 60; // 20% - 80%
+                const randomY = 25 + Math.random() * 50; // 25% - 75%
+                positionStyle = `left: ${randomX}%; top: ${randomY}%;`;
+                containerClass += ' positioned';
+            }
+
+            document.getElementById('gameDisplay').innerHTML = `
+                <div class="${containerClass}" style="${positionStyle}">
+                    <div class="letter-display">${letter.letter}</div>
+                    <div class="hand-display ${handColor}">${handSymbol}</div>
+                    <div class="hint">${hintText}</div>
+                </div>
+            `;
+
+            // Увеличить счетчик букв
+            letterCount++;
+            document.getElementById('lettersCount').textContent = letterCount;
+
+            // Запланировать следующую букву
+            scheduleNextLetter();
+        }
+
+        // Запланировать следующую букву
+        function scheduleNextLetter() {
+            if (isPlaying && !isPaused && timeRemaining > 0) {
+                gameInterval = setTimeout(showRandomLetter, speed);
+            }
+        }
+
+        // Пауза
+        function togglePause() {
+            isPaused = !isPaused;
+            const btn = document.getElementById('pauseBtn');
+            
+            if (isPaused) {
+                btn.innerHTML = '▶️ Продолжить';
+                clearTimeout(gameInterval);
+            } else {
+                btn.innerHTML = '⏸️ Пауза';
+                startTime = Date.now() - (sessionTime * 1000);
+                scheduleNextLetter();
+            }
+        }
+
+        // Завершение игры
+        function completeGame() {
+            isPlaying = false;
+            clearInterval(timerInterval);
+            clearTimeout(gameInterval);
+
+            stats.completedRounds++;
+            stats.totalTime += sessionTime;
+            
+            if (!stats.bestTime || sessionTime < stats.bestTime) {
+                stats.bestTime = sessionTime;
+            }
+            
+            saveStats();
+            updateStatsDisplay();
+            
+            // Воспроизвести звук
+            playCompletionSound();
+
+            document.getElementById('gameDisplay').innerHTML = `
+                <div class="emoji">🎉</div>
+                <h2 style="color: #1a202c; margin-bottom: 10px;">Отлично!</h2>
+                <p style="color: #718096;">Вы завершили сессию. Прочитано букв: ${letterCount}</p>
+                <p style="color: #718096; margin-top: 10px;">Теперь погрузитесь в свою цель и прочувствуйте результат</p>
+            `;
+
+            setTimeout(() => {
+                alert(`🎉 Отлично! Вы завершили сессию!\n\n⏱️ Время: ${formatTime(sessionTime)}\n🔤 Прочитано букв: ${letterCount}\n\n💭 Теперь снова погрузитесь в свою цель и прочувствуйте результат!`);
+            }, 500);
+
+            document.getElementById('pauseBtn').classList.add('hidden');
+            document.getElementById('speedControls').classList.add('hidden');
+            document.getElementById('startBtn').classList.remove('hidden');
+            document.getElementById('sessionStats').classList.add('hidden');
+        }
+
+        // Сброс
+        function resetGame() {
+            isPlaying = false;
+            isPaused = false;
+            letterCount = 0;
+            startTime = null;
+            sessionTime = 0;
+            timeRemaining = sessionDuration * 60;
+            goalSet = false;
+            previousLetter = null;
+            previousHand = null;
+
+            clearInterval(timerInterval);
+            clearTimeout(gameInterval);
+
+            document.getElementById('gameDisplay').innerHTML = `
+                <div class="emoji">🧠</div>
+                <h2 style="color: #1a202c; margin-bottom: 10px;">Готовы войти в состояние мастерства?</h2>
+                <p style="color: #718096;">Поставьте цель выше и нажмите "Старт" ⬆️</p>
+            `;
+
+            updateTimerDisplay();
+            document.getElementById('sessionTime').textContent = '0:00';
+            
+            document.getElementById('startBtn').classList.remove('hidden');
+            document.getElementById('pauseBtn').classList.add('hidden');
+            document.getElementById('speedControls').classList.add('hidden');
+            document.getElementById('sessionStats').classList.add('hidden');
+            document.getElementById('currentGoalDisplay').classList.add('hidden');
+            document.getElementById('goalSection').classList.remove('hidden');
+        }
+
+        // Инициализация при загрузке
+        window.onload = init;
+    </script>
+</body>
+</html>
