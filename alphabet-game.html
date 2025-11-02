@@ -171,6 +171,28 @@
             padding: 20px;
             min-height: 500px;
         }
+
+        /* Таймер для полноэкранного режима */
+        .fullscreen-timer {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 12px;
+            font-size: 32px;
+            font-weight: bold;
+            font-family: monospace;
+            z-index: 99999;
+            display: none;
+            pointer-events: none;
+        }
+
+        /* Показываем когда есть класс visible */
+        .fullscreen-timer.visible {
+            display: block;
+        }
         
         .letter-container {
             transition: all 0.3s ease;
@@ -807,6 +829,12 @@
             const display = `${minutes}:${seconds.toString().padStart(2, '0')}`;
             document.getElementById('timeRemaining').textContent = display;
             
+            // Обновляем также полноэкранный таймер если он существует
+            const fullscreenTimer = document.getElementById('fullscreenTimer');
+            if (fullscreenTimer) {
+                fullscreenTimer.textContent = display;
+            }
+            
             // Обновить прогресс-бар
             const totalSeconds = sessionDuration * 60;
             const progress = (timeRemaining / totalSeconds) * 100;
@@ -987,6 +1015,14 @@
                     ${hintHtml}
                 </div>
             `;
+            
+            // ВАЖНО: Пересоздаём таймер после innerHTML (если в fullscreen)
+            if (document.fullscreenElement || document.webkitFullscreenElement) {
+                const minutes = Math.floor(timeRemaining / 60);
+                const seconds = timeRemaining % 60;
+                const timerHtml = `<div class="fullscreen-timer visible" id="fullscreenTimer">${minutes}:${seconds.toString().padStart(2, '0')}</div>`;
+                document.getElementById('gameDisplay').insertAdjacentHTML('afterbegin', timerHtml);
+            }
 
             // Увеличить счетчик букв
             letterCount++;
@@ -1121,13 +1157,38 @@
 
         function updateFullscreenButton() {
             const btn = document.getElementById('fullscreenBtn');
-            if (btn) {
-                if (document.fullscreenElement || document.webkitFullscreenElement) {
+            const gameDisplay = document.getElementById('gameDisplay');
+            
+            if (document.fullscreenElement || document.webkitFullscreenElement) {
+                // Входим в fullscreen
+                if (btn) {
                     btn.textContent = '⛶';
                     btn.title = 'Выйти из полноэкранного режима (Esc)';
-                } else {
+                }
+                
+                // Создаём таймер если его ещё нет
+                if (!document.getElementById('fullscreenTimer')) {
+                    const timer = document.createElement('div');
+                    timer.id = 'fullscreenTimer';
+                    timer.className = 'fullscreen-timer visible';
+                    
+                    const minutes = Math.floor(timeRemaining / 60);
+                    const seconds = timeRemaining % 60;
+                    timer.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+                    
+                    gameDisplay.appendChild(timer);
+                }
+            } else {
+                // Выходим из fullscreen
+                if (btn) {
                     btn.textContent = '⛶';
                     btn.title = 'Полноэкранный режим (F)';
+                }
+                
+                // Удаляем таймер
+                const timer = document.getElementById('fullscreenTimer');
+                if (timer) {
+                    timer.remove();
                 }
             }
         }
